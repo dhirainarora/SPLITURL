@@ -1,0 +1,8 @@
+{
+  "name": "Remix domainWEB SPLIT ROULETTE",
+  "description": "Don\u0027t split the bill. Let fate split it. A social bill-splitting game that randomly decides how much each person pays while guaranteeing the exact bill total.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
