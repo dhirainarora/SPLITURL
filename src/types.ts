@@ -49,7 +49,11 @@ export type AppScreen =
   | 'REVEAL'
   | 'RESULTS'
   | 'HISTORY'
-  | 'SETTINGS';
+  | 'SETTINGS'
+  | 'PRIVACY'
+  | 'TERMS'
+  | 'CONTACT'
+  | 'ABOUT';
 
 export interface SetupDraft {
   peopleCount: number;

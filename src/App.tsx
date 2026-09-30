@@ -26,6 +26,39 @@ import { IndividualRevealScreen } from './components/IndividualRevealScreen';
 import { FinalResultsScreen } from './components/FinalResultsScreen';
 import { HistoryScreen } from './components/HistoryScreen';
 import { SettingsScreen } from './components/SettingsScreen';
+import { PrivacyPolicyScreen } from './components/PrivacyPolicyScreen';
+import { TermsScreen } from './components/TermsScreen';
+import { ContactScreen } from './components/ContactScreen';
+import { AboutScreen } from './components/AboutScreen';
+import { Footer } from './components/Footer';
+import { updatePageSeo } from './utils/seo';
+
+const getScreenFromPath = (): AppScreen => {
+  if (typeof window === 'undefined') return 'HOME';
+  const path = window.location.pathname.toLowerCase().replace(/\/$/, '');
+  if (path === '/privacy-policy' || path === '/privacy') return 'PRIVACY';
+  if (path === '/terms' || path === '/terms-of-service') return 'TERMS';
+  if (path === '/contact' || path === '/contact-us') return 'CONTACT';
+  if (path === '/about' || path === '/about-us') return 'ABOUT';
+  return 'HOME';
+};
+
+const getPathFromScreen = (scr: AppScreen): string | null => {
+  switch (scr) {
+    case 'PRIVACY':
+      return '/privacy-policy';
+    case 'TERMS':
+      return '/terms';
+    case 'CONTACT':
+      return '/contact';
+    case 'ABOUT':
+      return '/about';
+    case 'HOME':
+      return '/';
+    default:
+      return null;
+  }
+};
 
 export default function App() {
   // Application Settings
@@ -35,8 +68,24 @@ export default function App() {
   const [history, setHistory] = useState<SplitResult[]>(() => loadHistory());
 
   // Active Screen & Navigation
-  const [screen, setScreen] = useState<AppScreen>('HOME');
+  const [screen, setScreen] = useState<AppScreen>(() => getScreenFromPath());
   const [previousScreen, setPreviousScreen] = useState<AppScreen>('HOME');
+
+  // Synchronize SEO meta tags whenever the screen changes
+  useEffect(() => {
+    updatePageSeo(screen);
+  }, [screen]);
+
+  // Synchronize screen state with browser navigation (back/forward)
+  useEffect(() => {
+    const handlePopState = () => {
+      const nextScreen = getScreenFromPath();
+      setScreen(nextScreen);
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   // Setup Draft State (persisted across setup steps)
   const [draft, setDraft] = useState<SetupDraft>(() => ({
@@ -73,9 +122,15 @@ export default function App() {
     updateSettings({ ...settings, soundEnabled: !settings.soundEnabled });
   };
 
-  const navigateTo = (newScreen: AppScreen) => {
+  const navigateTo = (newScreen: AppScreen, pushState = true) => {
     setPreviousScreen(screen);
     setScreen(newScreen);
+    if (pushState && typeof window !== 'undefined') {
+      const path = getPathFromScreen(newScreen);
+      if (path && window.location.pathname !== path) {
+        window.history.pushState(null, '', path);
+      }
+    }
   };
 
   const handleBack = () => {
@@ -83,6 +138,8 @@ export default function App() {
       navigateTo('HOME');
     } else if (screen === 'RESULTS' || screen === 'HISTORY' || screen === 'SETTINGS') {
       navigateTo(previousScreen === screen ? 'HOME' : previousScreen);
+    } else if (screen === 'PRIVACY' || screen === 'TERMS' || screen === 'CONTACT' || screen === 'ABOUT') {
+      navigateTo('HOME');
     } else {
       navigateTo('HOME');
     }
@@ -180,7 +237,13 @@ export default function App() {
       />
 
       {/* Main Screen Container with responsive mobile framing */}
-      <main className="flex-1 flex flex-col w-full max-w-md mx-auto relative pb-6 pt-1">
+      <main
+        className={`flex-1 flex flex-col w-full mx-auto relative pb-6 pt-1 ${
+          screen === 'PRIVACY' || screen === 'TERMS' || screen === 'CONTACT' || screen === 'ABOUT'
+            ? 'max-w-2xl px-2'
+            : 'max-w-md'
+        }`}
+      >
         <AnimatePresence mode="wait">
           {screen === 'HOME' && (
             <motion.div
@@ -312,8 +375,64 @@ export default function App() {
               />
             </motion.div>
           )}
+
+          {screen === 'PRIVACY' && (
+            <motion.div
+              key="privacy"
+              initial={{ opacity: 0, y: settings.reducedMotion ? 0 : 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: settings.reducedMotion ? 0 : -10 }}
+              className="flex-1 flex flex-col w-full"
+            >
+              <PrivacyPolicyScreen onBack={() => navigateTo('HOME')} />
+            </motion.div>
+          )}
+
+          {screen === 'TERMS' && (
+            <motion.div
+              key="terms"
+              initial={{ opacity: 0, y: settings.reducedMotion ? 0 : 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: settings.reducedMotion ? 0 : -10 }}
+              className="flex-1 flex flex-col w-full"
+            >
+              <TermsScreen onBack={() => navigateTo('HOME')} />
+            </motion.div>
+          )}
+
+          {screen === 'CONTACT' && (
+            <motion.div
+              key="contact"
+              initial={{ opacity: 0, y: settings.reducedMotion ? 0 : 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: settings.reducedMotion ? 0 : -10 }}
+              className="flex-1 flex flex-col w-full"
+            >
+              <ContactScreen onBack={() => navigateTo('HOME')} />
+            </motion.div>
+          )}
+
+          {screen === 'ABOUT' && (
+            <motion.div
+              key="about"
+              initial={{ opacity: 0, y: settings.reducedMotion ? 0 : 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: settings.reducedMotion ? 0 : -10 }}
+              className="flex-1 flex flex-col w-full"
+            >
+              <AboutScreen
+                onBack={() => navigateTo('HOME')}
+                onStartSplit={() => navigateTo('SETUP')}
+              />
+            </motion.div>
+          )}
         </AnimatePresence>
       </main>
+
+      {/* Website Footer */}
+      {screen !== 'FATE_ANIMATION' && (
+        <Footer currentScreen={screen} onNavigate={(s) => navigateTo(s)} />
+      )}
     </div>
   );
 }
