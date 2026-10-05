@@ -240,7 +240,7 @@ export default function App() {
       <main
         className={`flex-1 flex flex-col w-full mx-auto relative pb-6 pt-1 ${
           screen === 'PRIVACY' || screen === 'TERMS' || screen === 'CONTACT' || screen === 'ABOUT'
-            ? 'max-w-2xl px-2'
+            ? 'max-w-3xl px-3 sm:px-4'
             : 'max-w-md'
         }`}
       >
