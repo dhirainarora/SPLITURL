@@ -256,6 +256,7 @@ export default function App() {
               <HomeScreen
                 onStartSplit={() => navigateTo('SETUP')}
                 onOpenHistory={() => navigateTo('HISTORY')}
+                onNavigateAbout={() => navigateTo('ABOUT')}
                 soundEnabled={settings.soundEnabled}
                 hapticsEnabled={settings.hapticsEnabled}
                 historyCount={history.length}

@@ -2,10 +2,12 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { Sparkles, History, ShieldCheck, Zap } from 'lucide-react';
 import { soundEffects, triggerHaptic } from '../utils/audioHaptics';
+import { HomeInfoSection } from './HomeInfoSection';
 
 interface HomeScreenProps {
   onStartSplit: () => void;
   onOpenHistory: () => void;
+  onNavigateAbout?: () => void;
   soundEnabled: boolean;
   hapticsEnabled: boolean;
   historyCount: number;
@@ -15,6 +17,7 @@ interface HomeScreenProps {
 export const HomeScreen: React.FC<HomeScreenProps> = ({
   onStartSplit,
   onOpenHistory,
+  onNavigateAbout,
   soundEnabled,
   hapticsEnabled,
   historyCount,
@@ -33,7 +36,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   };
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-between px-6 pt-4 pb-8 max-w-md mx-auto w-full text-center">
+    <div className="flex-1 flex flex-col items-center px-6 pt-4 pb-8 max-w-md mx-auto w-full text-center">
       {/* Top Tag & Aura */}
       <motion.div
         initial={{ opacity: 0, y: reducedMotion ? 0 : -10 }}
@@ -143,6 +146,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           </span>
         </button>
       </div>
+
+      {/* Informational Section below the functioning app */}
+      <HomeInfoSection onNavigateAbout={onNavigateAbout} />
     </div>
   );
 };
